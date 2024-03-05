@@ -1,0 +1,223 @@
+---
+output: html_document 
+---
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(hrbrthemes)
+library(knitr)
+library(kableExtra)
+library(broom)
+
+```
+
+<center>
+  
+# Regresión Lineal
+  
+
+</center>
+  
+## Exploración {.tabset}
+  
+  
+### summary
+  
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+kable(
+summary(iris)) %>%
+   kable_styling(font_size = 12) 
+
+```
+
+### head
+
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+kable(
+iris |>
+  as_tibble() |>
+  head()) |> 
+  kable_styling(font_size=12)
+
+```
+  
+### viz
+  
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+
+iris |>
+  ggplot(aes(Sepal.Length, Sepal.Width, color=Species, group=Species)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = FALSE) +
+  theme_ipsum() +
+  theme(
+    legend.position = 'bottom'
+  )
+
+```
+  
+## Modelo
+  
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+modelo = lm(Sepal.Width ~ Sepal.Length, data=iris)
+
+kable(
+  glance(modelo)) |> 
+  kable_styling(font_size=12)
+
+```
+
+
+## Diagnóstico {.tabset}
+  
+### Linealidad y Variabilidad
+
+* ¿La relación de las variable es efectivamente _lineal_? 
+  
+* ¿La variabilidad, _es constante_?
+  
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+modelo_aug <- augment(modelo)
+
+ggplot(data = modelo_aug, aes(x = .fitted, y = .resid)) +
+  geom_point(color ='green', alpha=0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  xlab("Valores Predichos") +
+  ylab("Residuos") +
+  theme_ipsum()
+
+```
+
+### Normalidad
+  
+¿Los residuos o error, _se distribuyen casi normalmente_?
+  
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+ggplot(data = modelo_aug, aes(x = .resid)) +
+  geom_histogram(binwidth = 0.25, fill = 'lightblue', alpha =0.7) +
+  xlab("Residuos") +
+  theme_ipsum()
+  
+```
+  
+<center> 
+  
+# Regresión Logística
+
+</center>
+
+
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+iris_categorical <- 
+  iris |> 
+  mutate(Sepal.Width = ifelse(Sepal.Width > mean(Sepal.Width), 1, 0))
+
+```
+
+
+## Exploración {.tabset}
+
+### summary
+  
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+kable(
+summary(iris_categorical)) %>%
+   kable_styling(font_size = 12) 
+
+```
+
+### head
+
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+kable(
+iris_categorical |>
+  as_tibble() |>
+  head()) |> 
+  kable_styling(font_size=12)
+
+```
+  
+### viz
+  
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+
+iris_categorical |>
+  ggplot(aes(Sepal.Length, Sepal.Width, color=Species, group=Species)) +
+  geom_point() +
+  geom_smooth(method = 'lm', se = FALSE) +
+  theme_ipsum() +
+  theme(
+    legend.position = 'bottom'
+  )
+
+```
+
+
+## Modelo
+
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+
+modelo_clasificacion = glm(Sepal.Width ~ Sepal.Length, family = 'binomial', data=iris_categorical)
+
+
+```
+
+## Diagnóstico {.tabset}
+
+### Linealidad y Variabilidad
+
+* ¿La relación de las variable es efectivamente _lineal_? 
+  
+* ¿La variabilidad, _es constante_?
+  
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+modelo_aug_class <- augment(modelo_clasificacion)
+
+ggplot(data = modelo_aug_class, aes(x = .fitted, y = .resid)) +
+  geom_point(color ='green', alpha=0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  xlab("Valores Predichos") +
+  ylab("Residuos") +
+  theme_ipsum()
+
+```
+  
+### Transformación Lgística
+
+$$ln(\frac{p}{1-p}) =  b_0 + b_1 * x$$
+
+$$\frac{p}{1-p} = e^{b_0+b_1x}$$
+
+
+$$p = \frac{e^{b_0+b_1x}}{1 + e^{b_0+b_1x}}$$
+$$p = \frac{1}{1 + e^{b_o + b_1x}}$$
+
+
+* link = log-odds (probabilidades en la escala de los logits)
+* terms = valores predichos sin transformar
+* response = probabilidades predichas
+
+```{r warning=FALSE, message=FALSE, echo=TRUE}
+
+glm_fitted <-
+  tibble(
+    link = predict(modelo_clasificacion, iris_categorical['Sepal.Length'], type = 'link'),
+    terms = predict(modelo_clasificacion, iris_categorical['Sepal.Length'], type = 'terms'),
+    response = predict(modelo_clasificacion, iris_categorical['Sepal.Length'], type = 'response')
+  )
+
+kable(glm_fitted |> head()) |> 
+  kable_styling(font_size=12)
+  
+```
+
