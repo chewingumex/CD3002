@@ -48,7 +48,7 @@ def plotVariableImportance(finalXGB, viz_type=None):
 
 # visualize training error metrics 
 
-def visualise_metrics(finalXGB, mod):
+def visualise_metrics(finalXGB, mod='classification'):
     
     if mod == 'classification':
         results = finalXGB.evals_result_

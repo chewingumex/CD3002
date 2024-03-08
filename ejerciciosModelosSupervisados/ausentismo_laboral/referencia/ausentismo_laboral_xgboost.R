@@ -9,16 +9,16 @@ library(rsample)
 library(caret)
 
 # load all supervised modelling functions
-source('modulo_2/modelosSupervisadosXGBOOST/cross_validation_xgb_binaryclassification.R')
-source('modulo_2/modelosSupervisadosXGBOOST/cross_validation_xgb_linear_regression.R')
-source('modulo_2/modelosSupervisadosXGBOOST/cross_validation_xgb_multiclassclassification.R')
-source('modulo_2/modelosSupervisadosXGBOOST/fitXGBoost.R')
-source('modulo_2/modelosSupervisadosXGBOOST/viz.R')
+source('Documents/CD3002/modelosSupervisadosXGBoostR/cross_validation_xgb_binaryclassification.R')
+source('Documents/CD3002/modelosSupervisadosXGBoostR/cross_validation_xgb_linear_regression.R')
+source('Documents/CD3002/modelosSupervisadosXGBoostR/cross_validation_xgb_multiclassclassification.R')
+source('Documents/CD3002/modelosSupervisadosXGBoostR/fitXGBoost.R')
+source('Documents/CD3002/modelosSupervisadosXGBoostR/viz.R')
 
 
 df <-
   read_excel(
-    'modulo_2/ejerciciosKPIsXGBoost/ausentismo_laboral/datos/Absenteeism_at_work_Project.xls'
+    'Documents/CD3002/ejerciciosModelosSupervisados/ausentismo_laboral/datos/Absenteeism_at_work_Project.xls'
     )
 
 # check variables
@@ -118,7 +118,7 @@ df |>
 
 df <-
   read_excel(
-    'modulo_2/ejerciciosKPIsXGBoost/ausentismo_laboral/datos/Absenteeism_at_work_Project.xls'
+    'Documents/CD3002/ejerciciosModelosSupervisados/ausentismo_laboral/datos/Absenteeism_at_work_Project.xls'
   ) |> 
   rename_all(
     .funs = list(
@@ -182,11 +182,11 @@ visualise_error(evaluation_log = modelo$evaluation_log,
                 error_metric = 'rmse')
 
 
-shap_viz <- make_shap_viz(test, 
+ make_shap_viz(test, 
                           modelo, 
                           'absenteeism_time_in_hours', 
                           'contribucion_variables', 
                           target='continuous') 
 
 
-var_importance_viz  <- make_importance_viz(modelo)
+make_importance_viz(modelo)
